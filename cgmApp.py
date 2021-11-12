@@ -2,11 +2,43 @@ from PyQt5 import QtWidgets
 from PyQt5 import QtGui
 from PyQt5 import QtCore
 from PyQt5.QtCore import QRectF, QSize
-from PyQt5.QtWidgets import QApplication, QGridLayout, QHeaderView, QLabel, QPushButton, QTabBar, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget, QListWidget, QHBoxLayout, QListWidgetItem
-from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import (
+    QApplication,
+    QComboBox,
+    QGridLayout,
+    QHeaderView,
+    QLabel,
+    QPushButton,
+    QTabBar,
+    QTableWidget,
+    QTableWidgetItem,
+    QVBoxLayout,
+    QWidget,
+    QListWidget,
+    QHBoxLayout,
+    QListWidgetItem,
+)
+from PyQt5.QtGui import QIcon, QColor
 import sys
 import os
 import pandas as pd
+
+
+class CustomTableWidget(QTableWidget):
+    def __init__(self, type, parent=None):
+        super(CustomTableWidget, self).__init__(parent)
+
+    def dropEvent(self, event):
+        destinationCell = self.itemAt(event.pos())
+        if isinstance(destinationCell, QTableWidgetItem):
+            if destinationCell.column() == 1 or destinationCell.column() == 3:
+                self.dragHandler(event)
+                super().dropEvent(event)
+            else:
+                event.ignore()
+
+    def dragHandler(self, event):
+        event.source().currentItem().setBackground(QColor.fromRgbF(0.5, 0.5, 0.5))
 
 
 class Window(QWidget):
@@ -28,26 +60,26 @@ class Window(QWidget):
         self.show()
 
     def mealReader(self, today):
-        mealDir = os.path.join(baseDir, 'meals')
+        mealDir = os.path.join(baseDir, "meals")
         os.chdir(mealDir)
         for root, dirs, files in os.walk(".", topdown=False):
             for name in files:
-                if '.csv' in name:
+                if ".csv" in name:
                     mealCSV = pd.read_csv(name)
                     break
-        mealCSV = mealCSV[mealCSV['Date'].str.contains(today)]
-        mealType = mealCSV['meal_type'].to_list()
-        mealName = mealCSV['meal_name'].to_list()
+        mealCSV = mealCSV[mealCSV["Date"].str.contains(today)]
+        mealType = mealCSV["meal_type"].to_list()
+        mealName = mealCSV["meal_name"].to_list()
         meals = []
         for counter in range(len(mealName)):
             temp = mealType[counter]
             temp = temp.capitalize()
-            temp += "\n"+mealName[counter]
+            temp += "\n" + mealName[counter]
             meals.append(temp)
         self.meals = meals
 
     def layoutMaker(self):
-        self.setGeometry(10, 10, 2000, 2000)
+        self.setGeometry(10, 10, 1500, 2000)
         self.listLayout = QHBoxLayout()
         self.dailyButtonLayout = QHBoxLayout()
         self.exportButtonLayout = QHBoxLayout()
@@ -60,11 +92,9 @@ class Window(QWidget):
         self.dateLayout.addWidget(self.dateLabel)
         self.dateLayout.addStretch()
 
-        self.tableWidget = QTableWidget()
-        self.tableWidget.setHorizontalScrollBarPolicy(
-            QtCore.Qt.ScrollBarAlwaysOn)
-        self.tableWidget.setVerticalScrollBarPolicy(
-            QtCore.Qt.ScrollBarAlwaysOn)
+        self.tableWidget = CustomTableWidget(self)
+        self.tableWidget.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        self.tableWidget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.listLayout.addWidget(self.tableWidget)
 
         self.sorttedPicturesLayout()
@@ -74,7 +104,7 @@ class Window(QWidget):
         self.appGridLayout.addLayout(self.controlButtonLayout, 2, 0)
         self.appGridLayout.addLayout(self.dailyButtonLayout, 3, 0)
         self.appGridLayout.addLayout(self.exportButtonLayout, 4, 0)
-        self.setWindowTitle('CGM Application')
+        self.setWindowTitle("CGM Application")
         self.setLayout(self.appGridLayout)
 
     def unsorttedUnusedPic(self):
@@ -92,25 +122,25 @@ class Window(QWidget):
         self.listLayout.addWidget(self.unsortedUnusedListWidget)
 
     def unsorttedUnusedPicDateExt(self):
-        photoDir = os.path.join(baseDir, 'whatsapp_photos')
+        photoDir = os.path.join(baseDir, "whatsapp_photos")
         os.chdir(photoDir)
 
         self.dates = []
         self.photos = []
         for root, dirs, files in os.walk(".", topdown=False):
             for name in files:
-                if '.jpg' not in name and '.jpeg' not in name and '.png' not in name:
+                if ".jpg" not in name and ".jpeg" not in name and ".png" not in name:
                     continue
                 self.photos.append(name)
                 myDate = name
-                myDate = myDate[:myDate.index('_')]
+                myDate = myDate[: myDate.index("_")]
                 self.dates.append(myDate)
 
         self.dates = list(set(self.dates))
         self.dates.sort()
 
     def unsorttedUnusedPicRefresher(self, today):
-        photoDir = os.path.join(baseDir, 'whatsapp_photos')
+        photoDir = os.path.join(baseDir, "whatsapp_photos")
         os.chdir(photoDir)
 
         self.dateSetter(today)
@@ -136,21 +166,34 @@ class Window(QWidget):
 
         self.tableWidget.update()
         self.sorttedPicturesLayout()
-        if (len(self.meals) == 0):
+        if len(self.meals) == 0:
             return
 
         for rowCounter in range(len(self.meals)):
             self.tableWidget.insertRow(self.tableWidget.rowCount())
-            for columnCounter in range(6):
-                newItem = QTableWidgetItem("", 0)
-                newItem.setTextAlignment(
-                    QtCore.Qt.AlignVCenter | QtCore.Qt.AlignHCenter)
-                newItem.setFlags(QtCore.Qt.ItemIsSelectable)
-                if(columnCounter == 1 or columnCounter == 3):
-                    newItem.setFlags(
-                        QtCore.Qt.ItemIsDropEnabled | QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsEnabled)
-                self.tableWidget.setItem(rowCounter, columnCounter, newItem)
-            self.tableWidget.setRowHeight(self.tableWidget.rowCount()-1, 100)
+            for columnCounter in range(7):
+
+                if(columnCounter==5):
+                    newItem = QComboBox()
+                    newItem.addItems(["100%", "75%", "50%","25%","0%"])
+                    self.tableWidget.setCellWidget(rowCounter,columnCounter,newItem)
+                else:
+                    newItem = QTableWidgetItem("", 0)
+                    newItem.setTextAlignment(
+                    QtCore.Qt.AlignVCenter | QtCore.Qt.AlignHCenter
+                )
+                    newItem.setFlags(QtCore.Qt.ItemIsSelectable)
+                    if columnCounter !=0:
+                        newItem.setFlags(newItem.flags() |QtCore.Qt.ItemIsEnabled)
+                    if columnCounter == 1 or columnCounter == 3:
+                        newItem.setFlags(newItem.flags()|
+                            QtCore.Qt.ItemIsDropEnabled
+                            | QtCore.Qt.ItemIsEditable
+                        )
+                    if columnCounter==6:
+                        newItem.setFlags(newItem.flags()|QtCore.Qt.ItemIsEditable)
+                    self.tableWidget.setItem(rowCounter, columnCounter, newItem)
+            self.tableWidget.setRowHeight(self.tableWidget.rowCount() - 1, 100)
         self.tableWidget.setIconSize(QSize(100, 100))
         self.tableWidget.setDragDropOverwriteMode(False)
 
@@ -159,9 +202,18 @@ class Window(QWidget):
 
     def sorttedPicturesLayout(self):
         self.tableWidget.setShowGrid(True)
-        self.tableWidget.setColumnCount(6)
+        self.tableWidget.setColumnCount(7)
         self.tableWidget.setHorizontalHeaderLabels(
-            ["Meal", "Start Pic", "Start Time", "End Pic", "End Time", "Note"])
+            [
+                "Meal",
+                "Start Pic",
+                "Start Time",
+                "End Pic",
+                "End Time",
+                "Completion",
+                "Note",
+            ]
+        )
 
         myFont = self.font()
         myFont.setPointSize(18)
@@ -197,19 +249,19 @@ class Window(QWidget):
         myFont = self.font()
         myFont.setPointSize(18)
         addButton = QPushButton("Add Row")
-        cleanButton = QPushButton("Clean Row")
-        removeButton = QPushButton("Remove Row")
+        cleanButton = QPushButton("Clean Cells")
 
         addButton.setFont(myFont)
         cleanButton.setFont(myFont)
-        removeButton.setFont(myFont)
 
         self.controlButtonLayout.addWidget(addButton)
         self.controlButtonLayout.addWidget(cleanButton)
-        self.controlButtonLayout.addWidget(removeButton)
+
         addButton.clicked.connect(self.actionAddButton)
         cleanButton.clicked.connect(self.actionCleanButton)
-        removeButton.clicked.connect(self.actionRemoveButton)
+
+        addButton.setMaximumWidth(150)
+        cleanButton.setMaximumWidth(150)
 
     def exportButtonMaker(self):
         myFont = self.font()
@@ -228,14 +280,9 @@ class Window(QWidget):
         print("fix me-------------")
 
     def actionCleanButton(self):
-        print("fix me-------------")
-
-    def actionRemoveButton(self):
-        print("mamad")
-        # for counter in range(self.unsortedUnusedListWidget.count()):
-        #     myIcon=self.unsortedUnusedListWidget.item(counter).icon()
-        #     self.unsortedUnusedListWidget.item(counter).se
-        #     print(self.unsortedUnusedListWidget.item(counter).setIcon(QIcon.addPixmap(myIcon,QIcon.Disabled,mode=)))
+        for element in self.tableWidget.selectedItems():
+            element.setIcon(QIcon())
+            element.setText("")
 
     def actionUpdateButton(self):
         for rowCounter in range(self.tableWidget.rowCount()):
@@ -248,8 +295,8 @@ class Window(QWidget):
 
     def actionPrevButton(self):
         self.todayCounter -= 1
-        if(self.todayCounter < 0):
-            self.todayCounter = len(self.dates)-1
+        if self.todayCounter < 0:
+            self.todayCounter = len(self.dates) - 1
         today = self.dates[self.todayCounter]
         print(today)
         self.unsorttedUnusedPicRefresher(today)
@@ -258,7 +305,7 @@ class Window(QWidget):
 
     def actionNextButton(self):
         self.todayCounter += 1
-        if(self.todayCounter >= len(self.dates)):
+        if self.todayCounter >= len(self.dates):
             self.todayCounter = 0
         today = self.dates[self.todayCounter]
         self.unsorttedUnusedPicRefresher(today)
@@ -267,7 +314,7 @@ class Window(QWidget):
         self.sorttedPictures()
 
     def dateSetter(self, currDate):
-        currDateStr = "Date: "+currDate
+        currDateStr = "Date: " + currDate
         myFont = self.font()
         myFont.setPointSize(30)
         self.dateLabel.setFont(myFont)
