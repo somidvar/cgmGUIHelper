@@ -1,14 +1,17 @@
 import numpy as np
-import time
+import time, datetime
 from PyQt5 import QtWidgets
 from PyQt5 import QtGui
 from PyQt5 import QtCore
 from PyQt5.QtCore import QRectF, QSize
 from PyQt5.QtWidgets import (
+    QAction,
     QApplication,
     QComboBox,
+    QDialog,
     QGridLayout,
     QHeaderView,
+    QInputDialog,
     QLabel,
     QLayout,
     QLineEdit,
@@ -53,13 +56,15 @@ class FormClass(QWidget):
     carb = 0
     fiber = 0
     calories=0
-
+    mealType=""
+    mealName=""
+    window_closed = QtCore.pyqtSignal()
     def __init__(self, entryData):
         super().__init__()
         self.resize(400, 300)
         self.show()
         self.layoutInit()
-        self.componentCreator()
+        self.componentCreator(entryData)
         
 
     def layoutInit(self):
@@ -74,7 +79,7 @@ class FormClass(QWidget):
         self.setWindowTitle("Modify Entry")
         self.setLayout(self.gridLayout)
 
-    def componentCreator(self):
+    def componentCreator(self,entryData):
         newLabel = QLabel("Carb:")
         self.verticalLayoutLabel.addWidget(newLabel)
 
@@ -90,6 +95,14 @@ class FormClass(QWidget):
         newLabel = QLabel("Calories:")
         self.verticalLayoutLabel.addWidget(newLabel)
 
+        newLabel = QLabel("Meal Type:")
+        self.verticalLayoutLabel.addWidget(newLabel)
+
+        newLabel = QLabel("Meal Name:")
+        self.verticalLayoutLabel.addWidget(newLabel)
+
+        #----------------Textbox
+        
         self.carbTB = QLineEdit("0")
         self.verticalLayoutText.addWidget(self.carbTB)
 
@@ -104,6 +117,12 @@ class FormClass(QWidget):
 
         self.caloriesTB = QLineEdit("0")
         self.verticalLayoutText.addWidget(self.caloriesTB)
+
+        self.mealTypeTB = QLineEdit(entryData["meal_type"])
+        self.verticalLayoutText.addWidget(self.mealTypeTB)
+        
+        self.mealNameTB = QLineEdit(entryData["meal_name"])
+        self.verticalLayoutText.addWidget(self.mealNameTB)        
 
         self.doneBut = QPushButton("Done")
         self.horizontalLayoutButton.addWidget(self.doneBut)
@@ -140,18 +159,23 @@ class FormClass(QWidget):
             print("Calories is not flot")
             return    
 
+        FormClass.mealType=self.mealTypeTB.text()
+        FormClass.mealName=self.mealNameTB.text()
+
         msgBox = QMessageBox()
         msgBox.setIcon(QMessageBox.Information)
         msgBox.setText("The values are successfully saved")
         msgBox.setStandardButtons(QMessageBox.Ok)
         msgBox.exec_()
-        Window.pauseFlag=False
         self.close()
+
+    def closeEvent(self, event):
+        self.window_closed.emit()
+        event.accept()
 
                                       
 
 class Window(QWidget):
-    pauseFlag=False
     def __init__(self):
         super().__init__()
         self.layoutMaker()  # the general layout is initiated
@@ -170,18 +194,22 @@ class Window(QWidget):
         entryIndex = self.tableWidget.item(rowCounter, 0).text()
         entryIndex = int(entryIndex)
         entryData = self.mealCSV.iloc[entryIndex, :]
-        self.modifyRecord = FormClass(entryData)   
-        
+        self.modifyRecord = FormClass(entryData)
+        self.modifyRecord.window_closed.connect(lambda:self.modifyAux(entryIndex))
+        # entryData = self.mealCSV.iloc[entryIndex, :]
+
+    # --------------------------Setting the model
+    def modifyAux(self,entryIndex):
         self.mealCSV['Calories'].iloc[entryIndex]=self.modifyRecord.calories
         self.mealCSV['Carbs'].iloc[entryIndex]=self.modifyRecord.carb
         self.mealCSV['Protein'].iloc[entryIndex]=self.modifyRecord.protein
         self.mealCSV['Fat'].iloc[entryIndex]=self.modifyRecord.fat
         self.mealCSV['Fiber'].iloc[entryIndex]=self.modifyRecord.fiber
 
-        entryData = self.mealCSV.iloc[entryIndex, :]
-        print(entryData)
+        self.mealCSV['meal_type'].iloc[entryIndex]=self.modifyRecord.mealType
+        self.mealCSV['meal_name'].iloc[entryIndex]=self.modifyRecord.mealName
+        
 
-    # --------------------------Setting the model
     def csvReader(self):
         csvDir = os.path.join(baseDir, "meals")
         os.chdir(csvDir)
@@ -226,6 +254,8 @@ class Window(QWidget):
                 self.mealCSV.drop(headers[counter], axis=1, inplace=True)
                 break
         self.mealCSV.insert(0, "RecordIndex", 0)
+        self.mealCSV.insert(len(self.mealCSV.columns),"start_photo_address","")
+        self.mealCSV.insert(len(self.mealCSV.columns),"finish_photo_address","")
         for counter in range(len(self.mealCSV)):
             self.mealCSV.iloc[counter, 0] = counter
             self.mealCSV["start_time"] = ""
@@ -394,8 +424,6 @@ class Window(QWidget):
         self.tableWidget.setColumnHidden(3, True)
         self.tableWidget.setColumnHidden(5, True)
 
-    # ---------------------------------New Window
-
     # ---------------------------------Button layout
     def dailyButtonMaker(self):
         myFont = self.font()
@@ -506,16 +534,36 @@ class Window(QWidget):
                 entryIndex = self.tableWidget.item(rowCounter, 0).text()
                 entryIndex = int(entryIndex)
                 entryTemp = self.tableWidget.item(rowCounter, 2).text()
+                self.mealCSV["start_photo_address"].iloc[entryIndex] = entryTemp
+                self.tableWidget.item(rowCounter, 3).setText(entryTemp)
+                if(entryTemp.rindex('_')==-1 or entryTemp.rindex('.')==-1):
+                    print("MAYDAY in actionUpdateButton function the file name is not right")
+                    sys.exit()
+                entryTemp=entryTemp[:entryTemp.rindex('.')]
+                try:
+                    entryTemp=datetime.datetime.strptime(entryTemp, "%Y-%m-%d__%H-%M")
+                except ValueError:
+                    print("MAYDAY in actionUpdateButton function the file name is not in time format")
+                    sys.exit()
                 self.mealCSV["start_time"].iloc[entryIndex] = entryTemp
-                entryTemp = self.tableWidget.item(rowCounter, 3).setText(entryTemp)
                 self.mealCSV["start_photo"].iloc[entryIndex] = 1
 
             if self.tableWidget.item(rowCounter, 4).text() != "":
                 entryIndex = self.tableWidget.item(rowCounter, 0).text()
                 entryIndex = int(entryIndex)
                 entryTemp = self.tableWidget.item(rowCounter, 4).text()
+                self.mealCSV["finish_photo_address"].iloc[entryIndex] = entryTemp
+                self.tableWidget.item(rowCounter, 5).setText(entryTemp)
+                if(entryTemp.rindex('_')==-1 or entryTemp.rindex('.')==-1):
+                    print("MAYDAY in actionUpdateButton function the file name is not right")
+                    sys.exit()
+                entryTemp=entryTemp[:entryTemp.rindex('.')]
+                try:
+                    entryTemp=datetime.datetime.strptime(entryTemp, "%Y-%m-%d__%H-%M")
+                except ValueError:
+                    print("MAYDAY in actionUpdateButton function the file name is not in time format")
+                    sys.exit()
                 self.mealCSV["end_time"].iloc[entryIndex] = entryTemp
-                entryTemp = self.tableWidget.item(rowCounter, 5).setText(entryTemp)
                 self.mealCSV["finish_photo"].iloc[entryIndex] = 1
 
     def actionPrevButton(self):
@@ -527,6 +575,7 @@ class Window(QWidget):
         self.listWidgetRefresher()
         self.tableWidgetRefresher()
         self.actionUpdateButton()
+
 
     def actionNextButton(self):
         self.todayCounter += 1
