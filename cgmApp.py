@@ -33,6 +33,7 @@ from PyQt5.QtGui import QIcon, QColor
 import sys
 import os
 import pandas as pd
+from pandas.core.reshape.concat import concat
 
 
 class CustomTableWidget(QTableWidget):
@@ -58,8 +59,8 @@ class FormClass(QWidget):
     carb = 0
     fiber = 0
     calories = 0
-    mealType = ""
-    mealName = ""
+    mealType = " "
+    mealName = " "
     window_closed = QtCore.pyqtSignal()
 
     def __init__(self, entryData):
@@ -104,31 +105,31 @@ class FormClass(QWidget):
         self.verticalLayoutLabel.addWidget(newLabel)
 
         # ----------------Textbox
-        if(entryData["Carbs"]!=0):
+        if entryData["Carbs"] != 0:
             self.carbTB = QLineEdit(str(entryData["Carbs"]))
         else:
             self.carbTB = QLineEdit("0")
         self.verticalLayoutText.addWidget(self.carbTB)
 
-        if(entryData["Fat"]!=0):
+        if entryData["Fat"] != 0:
             self.fatTB = QLineEdit(str(entryData["Fat"]))
         else:
             self.fatTB = QLineEdit("0")
         self.verticalLayoutText.addWidget(self.fatTB)
 
-        if(entryData["Protein"]!=0):
+        if entryData["Protein"] != 0:
             self.proteinTB = QLineEdit(str(entryData["Protein"]))
         else:
             self.proteinTB = QLineEdit("0")
         self.verticalLayoutText.addWidget(self.proteinTB)
 
-        if(entryData["Fiber"]!=0):
+        if entryData["Fiber"] != 0:
             self.fiberTB = QLineEdit(str(entryData["Fiber"]))
         else:
             self.fiberTB = QLineEdit("0")
         self.verticalLayoutText.addWidget(self.fiberTB)
 
-        if(entryData["Calories"]!=0):
+        if entryData["Calories"] != 0:
             self.caloriesTB = QLineEdit(str(entryData["Calories"]))
         else:
             self.caloriesTB = QLineEdit("0")
@@ -218,6 +219,7 @@ class Window(QWidget):
 
     # --------------------------Setting the model
     def modifyAux(self, entryIndex):
+        self.actionUpdateButton()
         self.model["Calories"].iloc[entryIndex] = self.modifyRecord.calories
         self.model["Carbs"].iloc[entryIndex] = self.modifyRecord.carb
         self.model["Protein"].iloc[entryIndex] = self.modifyRecord.protein
@@ -230,11 +232,12 @@ class Window(QWidget):
 
     def modelInit(self):
         os.chdir(baseDir)
-        if (not os.path.exists(os.path.join(baseDir,"ProcessedFile.csv"))):
-            shutil.copyfile(mealCSVAdd,os.path.join(baseDir,"ProcessedFile.csv"))
+        if not os.path.exists(os.path.join(baseDir, "ProcessedFile.csv")):
+            shutil.copyfile(mealCSVAdd, os.path.join(baseDir, "ProcessedFile.csv"))
         csvAdd = os.path.join(baseDir, "ProcessedFile.csv")
         self.model = pd.read_csv(csvAdd)
-        self.model["Date"] = pd.to_datetime(self.model["Date"])
+        # self.model["Date"] = pd.to_datetime(self.model["Date"])
+
 
     def modelChecker(self):
         headers = self.model.columns.tolist()
@@ -270,19 +273,22 @@ class Window(QWidget):
                 returningModel = True
         if not returningModel:
             self.model.insert(0, "RecordIndex", 0)
-            self.model.insert(len(self.model.columns), "start_photo_address", "")
-            self.model.insert(len(self.model.columns), "finish_photo_address", "")
+            self.model.insert(len(self.model.columns), "start_photo_address", " ")
+            self.model.insert(len(self.model.columns), "finish_photo_address", " ")
+            # self.model['start_photo_address'] = self.model['start_photo_address'].astype(str)
+            # self.model['finish_photo_address'] = self.model['finish_photo_address'].astype(str)
+            self.model["ratio"]=100
 
         for counter in range(len(self.model)):
             if not returningModel:  # the first time that the application is processing the CSV
                 self.model.iloc[counter, 0] = counter
                 self.model["mfp_entry"].iloc[counter] = 1
-            if pd.isnull(self.model["start_photo_address"].iloc[counter]):
-                self.model["start_time"] = ""
-                self.model["start_photo"] = 0
-            if pd.isnull(self.model["finish_photo_address"].iloc[counter]):
-                self.model["end_time"] = ""
-                self.model["finish_photo"] = 0
+            if (self.model["start_photo_address"].iloc[counter]==" "):
+                self.model["start_time"].iloc[counter] = " "
+                self.model["start_photo"].iloc[counter] = 0
+            if (self.model["finish_photo_address"].iloc[counter]==" "):
+                self.model["end_time"].iloc[counter] = " "
+                self.model["finish_photo"].iloc[counter] = 0
 
     def todayReader(self, today):
         todayCSV = self.model
@@ -318,7 +324,7 @@ class Window(QWidget):
         self.dateLayout = QHBoxLayout()
         self.appGridLayout = QGridLayout()
 
-        self.dateLabel = QLabel("")
+        self.dateLabel = QLabel(" ")
         self.dateLayout.addStretch()
         self.dateLayout.addWidget(self.dateLabel)
         self.dateLayout.addStretch()
@@ -383,7 +389,7 @@ class Window(QWidget):
         self.tableWidget.setShowGrid(True)
         self.tableWidget.setColumnCount(9)
         self.tableWidget.setHorizontalHeaderLabels(
-            ["Index", "Meal", "Start Pic", "Start Time", "End Pic", "End Time", "Completion", "Note", "Modify"]
+            ["Index", "Meal", "Start Pic", "Start Time", "End Pic", "End Time", "Ratio (%)", "Note", "Modify"]
         )
         myFont = self.font()
         myFont.setPointSize(18)
@@ -433,7 +439,7 @@ class Window(QWidget):
                 newItem.clicked.connect(lambda: self.modifyContent(currentRow))
                 self.tableWidget.setCellWidget(currentRow, columnCounter, newItem)
             else:
-                newItem = QTableWidgetItem("", 0)
+                newItem = QTableWidgetItem(" ", 0)
                 newItem.setTextAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignHCenter)
                 newItem.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled)
                 if columnCounter <= 1:
@@ -456,14 +462,37 @@ class Window(QWidget):
             indexEntry = self.tableWidget.item(counter, 0).text()
             indexEntry = int(indexEntry)
             itemFileName = self.model["start_photo_address"].iloc[indexEntry]
-            if not pd.isnull(itemFileName):
+            if itemFileName!=" ":
                 widgetItem = QTableWidgetItem(QIcon(itemFileName), itemFileName)
                 self.tableWidget.setItem(counter, 2, widgetItem)
 
             itemFileName = self.model["finish_photo_address"].iloc[indexEntry]
-            if not pd.isnull(itemFileName):
+            if itemFileName!=" ":
                 widgetItem = QTableWidgetItem(QIcon(itemFileName), itemFileName)
                 self.tableWidget.setItem(counter, 4, widgetItem)
+
+            itemData = self.model["ratio"].iloc[indexEntry]
+            widgetItem = QComboBox()
+            widgetItem.addItems(["0","25","50","75","100"])
+            if(itemData==0):
+                widgetItem.setCurrentIndex(0)
+            elif(itemData==25):
+                widgetItem.setCurrentIndex(1)
+            elif(itemData==50):
+                widgetItem.setCurrentIndex(2)
+            elif(itemData==75):
+                widgetItem.setCurrentIndex(3)
+            elif(itemData==100):
+                widgetItem.setCurrentIndex(4)                                                                                                
+            else:
+                print("MAYDAY.The ratio of the food is not among the set values.",itemData)
+                sys.exit()
+            self.tableWidget.setCellWidget(counter, 6, widgetItem)
+
+            itemData = self.model["notes"].iloc[indexEntry]
+            if not pd.isnull(itemData):
+                widgetItem = QTableWidgetItem(itemData)
+                self.tableWidget.setItem(counter, 7, widgetItem)
 
     # ---------------------------------Button layout
     def dailyButtonMaker(self):
@@ -534,8 +563,8 @@ class Window(QWidget):
         newRow = []
         newRow.append(len(self.model))  # record number
         newRow.append(self.dates[self.todayCounter])  # Date
-        newRow.append("")  # start time
-        newRow.append("")  # end time
+        newRow.append(" ")  # start time
+        newRow.append(" ")  # end time
         newRow.append("Custom Entry")  # meal type
         newRow.append("Custom Meal")  # meal name
         newRow.append(0)  # start photo flag
@@ -547,15 +576,17 @@ class Window(QWidget):
         newRow.append(0)  # fat
         newRow.append(0)  # fiber
         newRow.append(0)  # ratio
-        newRow.append("")  # notes
-        newRow.append("")  # start photo pic
-        newRow.append("")  # finish photo pic
+        newRow.append(" ")  # notes
+        newRow.append(" ")  # start photo pic
+        newRow.append(" ")  # finish photo pic
         newRow = [newRow]
 
-        newPd=pd.DataFrame(newRow,columns=self.model.columns.tolist())
-        newPd["Date"] = pd.to_datetime(newPd["Date"])
-        frames=[self.model,newPd]
-        self.model=pd.concat(frames)
+        newPd = pd.DataFrame(newRow, columns=self.model.columns.tolist())
+        # newPd["Date"] = pd.to_datetime(newPd["Date"])
+        newPd['start_photo_address'] = newPd['start_photo_address'].astype(str)
+        newPd['finish_photo_address'] = newPd['finish_photo_address'].astype(str)
+        frames = [self.model, newPd]
+        self.model = pd.concat(frames)
         self.tableWidgetRefresher()
 
     def actionCleanButton(self):
@@ -564,32 +595,32 @@ class Window(QWidget):
             cleanedRow = element.row()
             if cleanedColumn == 2:
                 element.setIcon(QIcon())
-                element.setText("")
+                element.setText(" ")
                 entryIndex = self.tableWidget.item(cleanedRow, 0).text()
                 entryIndex = int(entryIndex)
-                self.model["start_time"].iloc[entryIndex] = ""
-                self.model["start_photo_address"].iloc[entryIndex] = ""
+                self.model["start_time"].iloc[entryIndex] = " "
+                self.model["start_photo_address"].iloc[entryIndex] = " "
             if cleanedColumn == 4:
                 element.setIcon(QIcon())
-                element.setText("")
+                element.setText(" ")
                 entryIndex = self.tableWidget.item(cleanedRow, 0).text()
                 entryIndex = int(entryIndex)
-                self.model["end_time"].iloc[entryIndex] = ""
-                self.model["finish_photo_address"].iloc[entryIndex] = ""
-            if cleanedColumn == 2:
+                self.model["end_time"].iloc[entryIndex] = " "
+                self.model["finish_photo_address"].iloc[entryIndex] = " "
+            if cleanedColumn == 7:
                 element.setIcon(QIcon())
-                element.setText("")
+                element.setText(" ")
                 entryIndex = self.tableWidget.item(cleanedRow, 0).text()
                 entryIndex = int(entryIndex)
-                self.model["notes"].iloc[entryIndex] = ""
+                self.model["notes"].iloc[entryIndex] = " "
 
             self.actionUpdateButton()
 
     def actionUpdateButton(self):
         for rowCounter in range(self.tableWidget.rowCount()):
-            if self.tableWidget.item(rowCounter, 2).text() != "":
-                entryIndex = self.tableWidget.item(rowCounter, 0).text()
-                entryIndex = int(entryIndex)
+            entryIndex = self.tableWidget.item(rowCounter, 0).text()
+            entryIndex = int(entryIndex)
+            if self.tableWidget.item(rowCounter, 2).text() != " ":
                 entryTemp = self.tableWidget.item(rowCounter, 2).text()
                 self.model["start_photo_address"].iloc[entryIndex] = entryTemp
                 self.tableWidget.item(rowCounter, 3).setText(entryTemp)
@@ -599,15 +630,14 @@ class Window(QWidget):
                 entryTemp = entryTemp[: entryTemp.rindex(".")]
                 try:
                     entryTemp = datetime.datetime.strptime(entryTemp, "%Y-%m-%d__%H-%M")
+                    entryTemp = entryTemp.strftime("%Y-%m-%d_%H:%M")
                 except ValueError:
                     print("MAYDAY in actionUpdateButton function the file name is not in time format")
                     sys.exit()
                 self.model["start_time"].iloc[entryIndex] = entryTemp
                 self.model["start_photo"].iloc[entryIndex] = 1
 
-            if self.tableWidget.item(rowCounter, 4).text() != "":
-                entryIndex = self.tableWidget.item(rowCounter, 0).text()
-                entryIndex = int(entryIndex)
+            if self.tableWidget.item(rowCounter, 4).text() != " ":
                 entryTemp = self.tableWidget.item(rowCounter, 4).text()
                 self.model["finish_photo_address"].iloc[entryIndex] = entryTemp
                 self.tableWidget.item(rowCounter, 5).setText(entryTemp)
@@ -617,18 +647,19 @@ class Window(QWidget):
                 entryTemp = entryTemp[: entryTemp.rindex(".")]
                 try:
                     entryTemp = datetime.datetime.strptime(entryTemp, "%Y-%m-%d__%H-%M")
+                    entryTemp = entryTemp.strftime("%Y-%m-%d_%H:%M")
                 except ValueError:
                     print("MAYDAY in actionUpdateButton function the file name is not in time format")
                     sys.exit()
                 self.model["end_time"].iloc[entryIndex] = entryTemp
                 self.model["finish_photo"].iloc[entryIndex] = 1
-            
-            if self.tableWidget.item(rowCounter, 7).text() != "":
-                entryIndex = self.tableWidget.item(rowCounter, 0).text()
-                entryIndex = int(entryIndex)
+
+            entryTemp = self.tableWidget.cellWidget(rowCounter, 6).currentText()
+            self.model["ratio"].iloc[entryIndex] = int(entryTemp)
+
+            if self.tableWidget.item(rowCounter, 7).text() != " ":
                 entryTemp = self.tableWidget.item(rowCounter, 7).text()
                 self.model["notes"].iloc[entryIndex] = entryTemp
-                print(self.model)
 
     def actionPrevButton(self):
         self.todayCounter -= 1
@@ -652,7 +683,7 @@ class Window(QWidget):
 
 
 baseDir = "/Users/sorush/Github/cgmGUIHelper/caM01-001/"
-mealCSVAdd=os.path.join(baseDir,"meals/CaM01-001_meals.csv")
+mealCSVAdd = os.path.join(baseDir, "meals/CaM01-001_meals.csv")
 os.chdir(baseDir)
 
 App = QApplication(sys.argv)
