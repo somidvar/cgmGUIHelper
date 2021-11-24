@@ -1,5 +1,5 @@
 RecordIndex,Date,start_time,end_time,meal_type,meal_name,start_photo,finish_photo,mfp_entry,Calories,Carbs,Protein,Fat,Fiber,ratio,notes,start_photo_address,finish_photo_address
-0,2021-09-18,2021-09-18_14:23,2021-09-18_20:57,2,1,1,1,1,1.0,5.0,3.0,4.0,2.0,75, ,2021-09-18__14-23.jpg,2021-09-18__20-57.jpg
+0,2021-09-18, , ,breakfast,B1 (LLLL),0,0,1,268.0,24.0,22.0,10.5,0.0,100,, , 
 1,2021-09-18, , ,lunch,"Chicken Burrito, 1 serving(s)",0,0,1,576.0,61.0,25.0,24.0,1172.0,100,, , 
 2,2021-09-18, , ,lunch,L1 (HHHH),0,0,1,1180.0,81.0,88.0,54.5,18.0,100,, , 
 3,2021-09-18, , ,dinner,"Picante De Pollo, 1 serving(s)",0,0,1,512.0,63.0,30.0,19.0,231.0,100,, , 
@@ -12,7 +12,7 @@ RecordIndex,Date,start_time,end_time,meal_type,meal_name,start_photo,finish_phot
 10,2021-09-19, , ,snack ,"Betty Crocker - Sour Gushers, 12 pieces",0,0,1,110.0,24.0,0.0,2.0,55.0,100,, , 
 11,2021-09-19, , ,snack ,"Betty Crocker - Sour Gushers, 12 pieces",0,0,1,110.0,24.0,0.0,2.0,55.0,100,, , 
 12,2021-09-19, , ,snack ,"viloe - aloe original, 1 cup",0,0,1,38.0,9.0,0.0,0.0,40.0,100,, , 
-13,2021-09-19, , ,snack ,"Betty Crocker - Sour Gushers, 12 pieces",0,0,1,110.0,24.0,0.0,2.0,55.0,100,, , 
+13,2021-09-19,2021-09-19_08:18, ,snack ,"Betty Crocker - Sour Gushers, 12 pieces",1,0,1,110.0,24.0,0.0,2.0,55.0,100,,2021-09-19__08-18.jpg, 
 14,2021-09-19, , ,snack ,"Betty Crocker - Sour Gushers, 12 pieces",0,0,1,110.0,24.0,0.0,2.0,55.0,100,, , 
 15,2021-09-19, , ,snack ,"viloe - aloe original, 1 cup",0,0,1,38.0,9.0,0.0,0.0,40.0,100,, , 
 16,2021-09-19, , ,snack ,"Betty Crocker - Sour Gushers, 12 pieces",0,0,1,110.0,24.0,0.0,2.0,55.0,100,, , 

@@ -11,6 +11,7 @@ from PyQt5.QtWidgets import (
     QApplication,
     QComboBox,
     QDialog,
+    QFileDialog,
     QGridLayout,
     QHeaderView,
     QInputDialog,
@@ -196,17 +197,9 @@ class Window(QWidget):
         super().__init__()
 
         self.layoutMaker()  # the general layout is initiated
-        self.modelInit()
-        self.modelChecker()
-        self.modelCorrector()
-        self.mealPicReader()
-
-        self.tableWidgetRefresher()
-        self.listWidgetRefresher()
-
         self.controlButtonMaker()
         self.dailyButtonMaker()
-        self.exportButtonMaker()
+        self.openExportButtonMaker()
 
         self.show()
 
@@ -231,13 +224,10 @@ class Window(QWidget):
         self.tableWidgetRefresher()
 
     def modelInit(self):
-        os.chdir(baseDir)
-        if not os.path.exists(os.path.join(baseDir, "ProcessedFile.csv")):
-            shutil.copyfile(mealCSVAdd, os.path.join(baseDir, "ProcessedFile.csv"))
-        csvAdd = os.path.join(baseDir, "ProcessedFile.csv")
-        self.model = pd.read_csv(csvAdd)
-        # self.model["Date"] = pd.to_datetime(self.model["Date"])
-
+        os.chdir(self.baseAdd)
+        if not os.path.exists(os.path.join(self.baseAdd, "ProcessedFile.csv")):
+            shutil.copyfile(self.mealCSVAdd, os.path.join(self.baseAdd, "ProcessedFile.csv"))
+        self.model = pd.read_csv(os.path.join(self.baseAdd, "ProcessedFile.csv"))
 
     def modelChecker(self):
         headers = self.model.columns.tolist()
@@ -277,16 +267,16 @@ class Window(QWidget):
             self.model.insert(len(self.model.columns), "finish_photo_address", " ")
             # self.model['start_photo_address'] = self.model['start_photo_address'].astype(str)
             # self.model['finish_photo_address'] = self.model['finish_photo_address'].astype(str)
-            self.model["ratio"]=100
+            self.model["ratio"] = 100
 
         for counter in range(len(self.model)):
             if not returningModel:  # the first time that the application is processing the CSV
                 self.model.iloc[counter, 0] = counter
                 self.model["mfp_entry"].iloc[counter] = 1
-            if (self.model["start_photo_address"].iloc[counter]==" "):
+            if self.model["start_photo_address"].iloc[counter] == " ":
                 self.model["start_time"].iloc[counter] = " "
                 self.model["start_photo"].iloc[counter] = 0
-            if (self.model["finish_photo_address"].iloc[counter]==" "):
+            if self.model["finish_photo_address"].iloc[counter] == " ":
                 self.model["end_time"].iloc[counter] = " "
                 self.model["finish_photo"].iloc[counter] = 0
 
@@ -297,7 +287,7 @@ class Window(QWidget):
         return todayCSV
 
     def mealPicReader(self):
-        photoDir = os.path.join(baseDir, "whatsapp_photos")
+        photoDir = os.path.join(self.participantAdd, "whatsapp_photos")
         os.chdir(photoDir)
         self.todayCounter = 0
         self.dates = []
@@ -319,7 +309,7 @@ class Window(QWidget):
         self.setGeometry(10, 10, 1500, 2000)
         self.listLayout = QHBoxLayout()
         self.dailyButtonLayout = QHBoxLayout()
-        self.exportButtonLayout = QHBoxLayout()
+        self.openExportButtonLayout = QHBoxLayout()
         self.controlButtonLayout = QHBoxLayout()
         self.dateLayout = QHBoxLayout()
         self.appGridLayout = QGridLayout()
@@ -341,7 +331,7 @@ class Window(QWidget):
         self.appGridLayout.addLayout(self.listLayout, 1, 0)
         self.appGridLayout.addLayout(self.controlButtonLayout, 2, 0)
         self.appGridLayout.addLayout(self.dailyButtonLayout, 3, 0)
-        self.appGridLayout.addLayout(self.exportButtonLayout, 4, 0)
+        self.appGridLayout.addLayout(self.openExportButtonLayout, 4, 0)
         self.setWindowTitle("CGM Application")
         self.setLayout(self.appGridLayout)
 
@@ -355,14 +345,14 @@ class Window(QWidget):
     # ------------------------------ListWidget Item
     def listWidgetLayout(self):
         # self.listWidget.setViewMode(QListWidget.IconMode)
-        self.listWidget.setAcceptDrops(True)
+        self.listWidget.setAcceptDrops(False)
         self.listWidget.setDragEnabled(True)
         self.listWidget.setIconSize(QSize(200, 200))
         self.listWidget.setDragDropOverwriteMode(True)
 
     def listWidgetRefresher(self):
         today = self.dates[self.todayCounter]
-        photoDir = os.path.join(baseDir, "whatsapp_photos")
+        photoDir = os.path.join(self.participantAdd, "whatsapp_photos")
         os.chdir(photoDir)
 
         self.dateLabelSetter(today)
@@ -396,8 +386,9 @@ class Window(QWidget):
         self.tableWidget.horizontalHeader().setFont(myFont)
         self.tableWidget.setAcceptDrops(True)
         self.tableWidget.setFont(myFont)
-        self.tableWidget.setColumnWidth(2, 100)
-        self.tableWidget.setColumnWidth(4, 100)
+        self.tableWidget.setColumnWidth(1, 300)
+        self.tableWidget.setColumnWidth(2, 150)
+        self.tableWidget.setColumnWidth(4, 150)
 
         headers = self.tableWidget.horizontalHeader()
         headers.setSectionResizeMode(7, QHeaderView.Stretch)
@@ -456,36 +447,36 @@ class Window(QWidget):
     def tableWidgetItemAdder(self):
         if self.tableWidget.rowCount() == 0:
             return
-        photoDir = os.path.join(baseDir, "whatsapp_photos")
+        photoDir = os.path.join(self.participantAdd, "whatsapp_photos")
         os.chdir(photoDir)
         for counter in range(self.tableWidget.rowCount()):
             indexEntry = self.tableWidget.item(counter, 0).text()
             indexEntry = int(indexEntry)
             itemFileName = self.model["start_photo_address"].iloc[indexEntry]
-            if itemFileName!=" ":
+            if itemFileName != " ":
                 widgetItem = QTableWidgetItem(QIcon(itemFileName), itemFileName)
                 self.tableWidget.setItem(counter, 2, widgetItem)
 
             itemFileName = self.model["finish_photo_address"].iloc[indexEntry]
-            if itemFileName!=" ":
+            if itemFileName != " ":
                 widgetItem = QTableWidgetItem(QIcon(itemFileName), itemFileName)
                 self.tableWidget.setItem(counter, 4, widgetItem)
 
             itemData = self.model["ratio"].iloc[indexEntry]
             widgetItem = QComboBox()
-            widgetItem.addItems(["0","25","50","75","100"])
-            if(itemData==0):
+            widgetItem.addItems(["0", "25", "50", "75", "100"])
+            if itemData == 0:
                 widgetItem.setCurrentIndex(0)
-            elif(itemData==25):
+            elif itemData == 25:
                 widgetItem.setCurrentIndex(1)
-            elif(itemData==50):
+            elif itemData == 50:
                 widgetItem.setCurrentIndex(2)
-            elif(itemData==75):
+            elif itemData == 75:
                 widgetItem.setCurrentIndex(3)
-            elif(itemData==100):
-                widgetItem.setCurrentIndex(4)                                                                                                
+            elif itemData == 100:
+                widgetItem.setCurrentIndex(4)
             else:
-                print("MAYDAY.The ratio of the food is not among the set values.",itemData)
+                print("MAYDAY.The ratio of the food is not among the set values.", itemData)
                 sys.exit()
             self.tableWidget.setCellWidget(counter, 6, widgetItem)
 
@@ -536,20 +527,54 @@ class Window(QWidget):
         addButton.setMaximumWidth(150)
         cleanButton.setMaximumWidth(150)
 
-    def exportButtonMaker(self):
+    def openExportButtonMaker(self):
         myFont = self.font()
         myFont.setPointSize(18)
+
+        openButton = QPushButton("Open")
+        openButton.setFont(myFont)        
+
         exportButton = QPushButton("Export")
-        exportButton.setFont(myFont)
+        exportButton.setFont(myFont)       
+
+        openButton.setMaximumWidth(150)
+        self.openExportButtonLayout.addWidget(openButton)
+        openButton.clicked.connect(self.actionOpenButton)
 
         exportButton.setMaximumWidth(150)
-        self.exportButtonLayout.addWidget(exportButton)
+        self.openExportButtonLayout.addWidget(exportButton)
         exportButton.clicked.connect(self.actionExportButton)
 
     # -------------------------Button actions
+    def actionOpenButton(self):
+        self.modelFileDialog=QFileDialog()
+        self.modelFileDialog.setFileMode(QFileDialog.AnyFile)
+        self.modelFileDialog.setNameFilters(["Comma-separated value (*.csv)"])
+
+        self.modelFileDialog.exec_()
+        self.mealCSVAdd=self.modelFileDialog.selectedFiles()
+        self.mealCSVAdd=self.mealCSVAdd[0]
+        if('.csv' not in self.mealCSVAdd):
+            msgBox = QMessageBox()
+            msgBox.setIcon(QMessageBox.Critical)
+            msgBox.setText("The address file does not contain csv.")
+            msgBox.setStandardButtons(QMessageBox.Ok)
+            msgBox.exec_()
+            return
+        self.baseAdd=os.path.dirname(self.mealCSVAdd)
+        self.participantAdd=os.path.dirname(self.baseAdd)
+
+        self.modelInit()
+        self.modelChecker()
+        self.modelCorrector()
+        self.mealPicReader()
+
+        self.tableWidgetRefresher()
+        self.listWidgetRefresher()
+
     def actionExportButton(self):
         self.actionUpdateButton()
-        self.model.to_csv(os.path.join(baseDir, "ProcessedFile.csv"), index=False)
+        self.model.to_csv(os.path.join(self.baseAdd, "ProcessedFile.csv"), index=False)
         msgBox = QMessageBox()
         msgBox.setIcon(QMessageBox.Information)
         msgBox.setText("The file is successfully saved")
@@ -583,8 +608,8 @@ class Window(QWidget):
 
         newPd = pd.DataFrame(newRow, columns=self.model.columns.tolist())
         # newPd["Date"] = pd.to_datetime(newPd["Date"])
-        newPd['start_photo_address'] = newPd['start_photo_address'].astype(str)
-        newPd['finish_photo_address'] = newPd['finish_photo_address'].astype(str)
+        newPd["start_photo_address"] = newPd["start_photo_address"].astype(str)
+        newPd["finish_photo_address"] = newPd["finish_photo_address"].astype(str)
         frames = [self.model, newPd]
         self.model = pd.concat(frames)
         self.tableWidgetRefresher()
@@ -681,10 +706,6 @@ class Window(QWidget):
         self.tableWidgetRefresher()
         self.actionUpdateButton()
 
-
-baseDir = "/Users/sorush/Github/cgmGUIHelper/caM01-001/"
-mealCSVAdd = os.path.join(baseDir, "meals/CaM01-001_meals.csv")
-os.chdir(baseDir)
 
 App = QApplication(sys.argv)
 window = Window()
