@@ -212,7 +212,7 @@ class Window(QWidget):
 
     # --------------------------Setting the model
     def modifyAux(self, entryIndex):
-        self.actionUpdateButton()
+        self.actionSaveButton()
         self.model["Calories"].iloc[entryIndex] = self.modifyRecord.calories
         self.model["Carbs"].iloc[entryIndex] = self.modifyRecord.carb
         self.model["Protein"].iloc[entryIndex] = self.modifyRecord.protein
@@ -250,7 +250,7 @@ class Window(QWidget):
         ]
         for element in checkLists:
             if not element in headers:
-                print("Error, please check your csv file because the headers is not right***********")
+                print("Error, please check your csv file because the headers is not right")
                 sys.exit()
 
     def modelCorrector(self):
@@ -491,19 +491,19 @@ class Window(QWidget):
         myFont.setPointSize(18)
 
         prevButton = QPushButton("<< Prev Day")
-        updateButton = QPushButton("Update Today")
+        saveButton = QPushButton("Save")
         nextButton = QPushButton("Next Day>>")
 
         prevButton.setFont(myFont)
-        updateButton.setFont(myFont)
+        saveButton.setFont(myFont)
         nextButton.setFont(myFont)
 
         self.dailyButtonLayout.addStretch()
         self.dailyButtonLayout.addWidget(prevButton)
-        self.dailyButtonLayout.addWidget(updateButton)
+        self.dailyButtonLayout.addWidget(saveButton)
         self.dailyButtonLayout.addWidget(nextButton)
         self.dailyButtonLayout.addStretch()
-        updateButton.clicked.connect(self.actionUpdateButton)
+        saveButton.clicked.connect(self.actionSaveButton)
         nextButton.clicked.connect(self.actionNextButton)
         prevButton.clicked.connect(self.actionPrevButton)
 
@@ -573,7 +573,7 @@ class Window(QWidget):
         self.listWidgetRefresher()
 
     def actionExportButton(self):
-        self.actionUpdateButton()
+        self.actionSaveButton()
         self.model.to_csv(os.path.join(self.baseAdd, "ProcessedFile.csv"), index=False)
         msgBox = QMessageBox()
         msgBox.setIcon(QMessageBox.Information)
@@ -639,9 +639,9 @@ class Window(QWidget):
                 entryIndex = int(entryIndex)
                 self.model["notes"].iloc[entryIndex] = " "
 
-            self.actionUpdateButton()
+            self.actionSaveButton()
 
-    def actionUpdateButton(self):
+    def actionSaveButton(self):
         for rowCounter in range(self.tableWidget.rowCount()):
             entryIndex = self.tableWidget.item(rowCounter, 0).text()
             entryIndex = int(entryIndex)
@@ -650,14 +650,14 @@ class Window(QWidget):
                 self.model["start_photo_address"].iloc[entryIndex] = entryTemp
                 self.tableWidget.item(rowCounter, 3).setText(entryTemp)
                 if entryTemp.rindex("_") == -1 or entryTemp.rindex(".") == -1:
-                    print("MAYDAY in actionUpdateButton function the file name is not right")
+                    print("MAYDAY in actionSaveButton function the file name is not right")
                     sys.exit()
                 entryTemp = entryTemp[: entryTemp.rindex(".")]
                 try:
                     entryTemp = datetime.datetime.strptime(entryTemp, "%Y-%m-%d__%H-%M")
                     entryTemp = entryTemp.strftime("%Y-%m-%d_%H:%M")
                 except ValueError:
-                    print("MAYDAY in actionUpdateButton function the file name is not in time format")
+                    print("MAYDAY in actionSaveButton function the file name is not in time format")
                     sys.exit()
                 self.model["start_time"].iloc[entryIndex] = entryTemp
                 self.model["start_photo"].iloc[entryIndex] = 1
@@ -667,14 +667,14 @@ class Window(QWidget):
                 self.model["finish_photo_address"].iloc[entryIndex] = entryTemp
                 self.tableWidget.item(rowCounter, 5).setText(entryTemp)
                 if entryTemp.rindex("_") == -1 or entryTemp.rindex(".") == -1:
-                    print("MAYDAY in actionUpdateButton function the file name is not right")
+                    print("MAYDAY in actionSaveButton function the file name is not right")
                     sys.exit()
                 entryTemp = entryTemp[: entryTemp.rindex(".")]
                 try:
                     entryTemp = datetime.datetime.strptime(entryTemp, "%Y-%m-%d__%H-%M")
                     entryTemp = entryTemp.strftime("%Y-%m-%d_%H:%M")
                 except ValueError:
-                    print("MAYDAY in actionUpdateButton function the file name is not in time format")
+                    print("MAYDAY in actionSaveButton function the file name is not in time format")
                     sys.exit()
                 self.model["end_time"].iloc[entryIndex] = entryTemp
                 self.model["finish_photo"].iloc[entryIndex] = 1
@@ -694,7 +694,7 @@ class Window(QWidget):
         print(today)
         self.listWidgetRefresher()
         self.tableWidgetRefresher()
-        self.actionUpdateButton()
+        self.actionSaveButton()
 
     def actionNextButton(self):
         self.todayCounter += 1
@@ -704,7 +704,7 @@ class Window(QWidget):
         print(today)
         self.listWidgetRefresher()
         self.tableWidgetRefresher()
-        self.actionUpdateButton()
+        self.actionSaveButton()
 
 
 App = QApplication(sys.argv)

@@ -1,18 +1,18 @@
 RecordIndex,Date,start_time,end_time,meal_type,meal_name,start_photo,finish_photo,mfp_entry,Calories,Carbs,Protein,Fat,Fiber,ratio,notes,start_photo_address,finish_photo_address
-0,2021-09-18, , ,breakfast,B1 (LLLL),0,0,1,268.0,24.0,22.0,10.5,0.0,100,, , 
-1,2021-09-18, , ,lunch,"Chicken Burrito, 1 serving(s)",0,0,1,576.0,61.0,25.0,24.0,1172.0,100,, , 
-2,2021-09-18, , ,lunch,L1 (HHHH),0,0,1,1180.0,81.0,88.0,54.5,18.0,100,, , 
+0,2021-09-18,2021-09-18_14:23,2021-09-18_20:57,breakfast,B1 (LLLL),1,1,1,268.0,24.0,22.0,10.5,0.0,75,,2021-09-18__14-23.jpg,2021-09-18__20-57.jpg
+1,2021-09-18,2021-09-18_14:53,2021-09-18_21:05,lunch,"Chicken Burrito, 1 serving(s)",1,1,1,576.0,61.0,25.0,24.0,1172.0,100,,2021-09-18__14-53.jpg,2021-09-18__21-05.jpg
+2,2021-09-18,2021-09-18_20:48,2021-09-18_11:22,lunch,L1 (HHHH),1,1,1,1180.0,81.0,88.0,54.5,18.0,100,,2021-09-18__20-48.jpg,2021-09-18__11-22.jpg
 3,2021-09-18, , ,dinner,"Picante De Pollo, 1 serving(s)",0,0,1,512.0,63.0,30.0,19.0,231.0,100,, , 
 4,2021-09-18, , ,dinner,"viloe - aloe original, 2.11 cup",0,0,1,80.0,18.0,0.0,0.0,84.0,100,, , 
 5,2021-09-18, , ,dinner,"Picante De Pollo, 1 serving(s)",0,0,1,512.0,63.0,30.0,19.0,231.0,100,, , 
 6,2021-09-18, , ,dinner,"viloe - aloe original, 2.11 cup",0,0,1,80.0,18.0,0.0,0.0,84.0,100,, , 
-7,2021-09-19, , ,breakfast,B2 (HLLL),0,0,1,448.0,66.0,22.0,10.5,0.0,100,, , 
-8,2021-09-19, , ,lunch,"viloe - aloe original, 1 cup",0,0,1,38.0,9.0,0.0,0.0,40.0,100,, , 
-9,2021-09-19, , ,lunch,L2 (HLHL),0,0,1,830.0,92.0,17.0,42.0,10.0,100,, , 
-10,2021-09-19, , ,snack ,"Betty Crocker - Sour Gushers, 12 pieces",0,0,1,110.0,24.0,0.0,2.0,55.0,100,, , 
+7,2021-09-19,2021-09-19_19:52,2021-09-19_12:00,breakfast,B2 (HLLL),1,1,1,448.0,66.0,22.0,10.5,0.0,100,,2021-09-19__19-52.jpg,2021-09-19__12-00.jpg
+8,2021-09-19,2021-09-19_20:10,2021-09-19_08:18,lunch,"viloe - aloe original, 1 cup",1,1,1,38.0,9.0,0.0,0.0,40.0,100,,2021-09-19__20-10.jpg,2021-09-19__08-18.jpg
+9,2021-09-19,2021-09-19_16:37,2021-09-19_12:24,lunch,L2 (HLHL),1,1,1,830.0,92.0,17.0,42.0,10.0,100,,2021-09-19__16-37.jpg,2021-09-19__12-24.jpg
+10,2021-09-19,2021-09-19_08:41,2021-09-19_12:24,snack ,"Betty Crocker - Sour Gushers, 12 pieces",1,1,1,110.0,24.0,0.0,2.0,55.0,75,,2021-09-19__08-41.jpg,2021-09-19__12-24.jpg
 11,2021-09-19, , ,snack ,"Betty Crocker - Sour Gushers, 12 pieces",0,0,1,110.0,24.0,0.0,2.0,55.0,100,, , 
 12,2021-09-19, , ,snack ,"viloe - aloe original, 1 cup",0,0,1,38.0,9.0,0.0,0.0,40.0,100,, , 
-13,2021-09-19,2021-09-19_08:18, ,snack ,"Betty Crocker - Sour Gushers, 12 pieces",1,0,1,110.0,24.0,0.0,2.0,55.0,100,,2021-09-19__08-18.jpg, 
+13,2021-09-19, , ,snack ,"Betty Crocker - Sour Gushers, 12 pieces",0,0,1,110.0,24.0,0.0,2.0,55.0,100,, , 
 14,2021-09-19, , ,snack ,"Betty Crocker - Sour Gushers, 12 pieces",0,0,1,110.0,24.0,0.0,2.0,55.0,100,, , 
 15,2021-09-19, , ,snack ,"viloe - aloe original, 1 cup",0,0,1,38.0,9.0,0.0,0.0,40.0,100,, , 
 16,2021-09-19, , ,snack ,"Betty Crocker - Sour Gushers, 12 pieces",0,0,1,110.0,24.0,0.0,2.0,55.0,100,, , 
@@ -70,7 +70,7 @@ RecordIndex,Date,start_time,end_time,meal_type,meal_name,start_photo,finish_phot
 68,2021-09-21, , ,snack ,"Glacéau Vitamin Water - Power-C Dragonfruit, 1 Bottle",0,0,1,100.0,27.0,0.0,0.0,0.0,100,, , 
 69,2021-09-21, , ,snack ,"York Peppermint Patties - York Peppermint Patties, 2 Pieces",0,0,1,100.0,22.0,0.0,2.0,10.0,100,, , 
 70,2021-09-21, , ,snack ,"Glacéau Vitamin Water - Power-C Dragonfruit, 1 Bottle",0,0,1,100.0,27.0,0.0,0.0,0.0,100,, , 
-71,2021-09-21, , ,snack ,"York Peppermint Patties - York Peppermint Patties, 2 Pieces",0,0,1,100.0,22.0,0.0,2.0,10.0,100,, , 
+71,2021-09-21,2021-09-21_20:15,2021-09-21_13:09,snack ,"York Peppermint Patties - York Peppermint Patties, 2 Pieces",1,1,1,100.0,22.0,0.0,2.0,10.0,25,,2021-09-21__20-15.jpg,2021-09-21__13-09.jpg
 72,2021-09-21, , ,dinner,"Agropesa - Chori pan de res/ tipo argentino, 90 gr",0,0,1,210.0,1.0,13.0,17.0,700.0,100,, , 
 73,2021-09-21, , ,dinner,"Avocado (Half) - Avocado (Half), 0.5 avocado",0,0,1,160.0,9.0,2.0,15.0,7.0,100,, , 
 74,2021-09-21, , ,dinner,"Lto - Lettuce, Onion, Tomato, 1 serving",0,0,1,25.0,6.0,1.0,0.0,7.0,100,, , 
@@ -172,3 +172,4 @@ RecordIndex,Date,start_time,end_time,meal_type,meal_name,start_photo,finish_phot
 170,2021-09-27, , ,dinner,"Glaceau Xxx - Vitamin Water - Acai Blueberry Pomegrante Vitamin Water, 20 oz",0,0,1,100.0,26.0,0.0,0.0,0.0,100,, , 
 171,2021-09-27, , ,dinner,"Iberico bbq chorizo - hotdog sausage, 108 gram",0,0,1,287.0,2.0,21.0,21.0,0.0,100,, , 
 172,2021-09-28, , ,breakfast,B11 (HLHH),0,0,1,902.0,73.0,22.0,42.0,7.0,100,, , 
+173,2021-09-18,2021-09-18_21:05,2021-09-18_20:48,Custom Entry12,Custom Meal123,1,1,0,5.0,1.0,3.0,2.0,4.0,75, ,2021-09-18__21-05.jpg,2021-09-18__20-48.jpg
