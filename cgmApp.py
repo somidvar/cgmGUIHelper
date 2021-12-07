@@ -106,75 +106,76 @@ class FormClass(QWidget):
         self.verticalLayoutLabel.addWidget(newLabel)
 
         # ----------------Textbox
-        if entryData["Carbs"] != 0:
-            self.carbTB = QLineEdit(str(entryData["Carbs"]))
-        else:
-            self.carbTB = QLineEdit("0")
+        self.carbTB = QLineEdit(str(entryData["Carbs"]))
         self.verticalLayoutText.addWidget(self.carbTB)
+        FormClass.carb = str(entryData["Carbs"])
 
-        if entryData["Fat"] != 0:
-            self.fatTB = QLineEdit(str(entryData["Fat"]))
-        else:
-            self.fatTB = QLineEdit("0")
+        self.fatTB = QLineEdit(str(entryData["Fat"]))
         self.verticalLayoutText.addWidget(self.fatTB)
+        FormClass.fat = str(entryData["Fat"])
 
-        if entryData["Protein"] != 0:
-            self.proteinTB = QLineEdit(str(entryData["Protein"]))
-        else:
-            self.proteinTB = QLineEdit("0")
+        self.proteinTB = QLineEdit(str(entryData["Protein"]))
         self.verticalLayoutText.addWidget(self.proteinTB)
+        FormClass.protein = str(entryData["Protein"])
 
-        if entryData["Fiber"] != 0:
-            self.fiberTB = QLineEdit(str(entryData["Fiber"]))
-        else:
-            self.fiberTB = QLineEdit("0")
+        self.fiberTB = QLineEdit(str(entryData["Fiber"]))
         self.verticalLayoutText.addWidget(self.fiberTB)
+        FormClass.fiber = str(entryData["Fiber"])
 
-        if entryData["Calories"] != 0:
-            self.caloriesTB = QLineEdit(str(entryData["Calories"]))
-        else:
-            self.caloriesTB = QLineEdit("0")
+        self.caloriesTB = QLineEdit(str(entryData["Calories"]))
         self.verticalLayoutText.addWidget(self.caloriesTB)
+        FormClass.calories = str(entryData["Calories"])
 
         self.mealTypeTB = QLineEdit(entryData["meal_type"])
         self.verticalLayoutText.addWidget(self.mealTypeTB)
+        FormClass.mealType = str(entryData["meal_type"])
 
         self.mealNameTB = QLineEdit(entryData["meal_name"])
         self.verticalLayoutText.addWidget(self.mealNameTB)
+        FormClass.mealName = str(entryData["meal_name"])
 
         self.doneBut = QPushButton("Done")
         self.horizontalLayoutButton.addWidget(self.doneBut)
         self.doneBut.clicked.connect(self.actionDoneBut)
 
     def actionDoneBut(self):
+        msgBoxError = QMessageBox()
+        msgBoxError.setIcon(QMessageBox.Critical)
+        msgBoxError.setText("The value is not a number")
+        msgBoxError.setStandardButtons(QMessageBox.Ok)
         try:
             FormClass.carb = float(self.carbTB.text())
         except ValueError:
             print("Carb is not flot")
+            msgBoxError.exec_()
             return
 
         try:
             FormClass.fat = float(self.fatTB.text())
         except ValueError:
             print("Fat is not flot")
+            msgBoxError.exec_()
             return
 
         try:
             FormClass.protein = float(self.proteinTB.text())
         except ValueError:
             print("Protein is not flot")
+            msgBoxError.exec_()
             return
 
         try:
             FormClass.fiber = float(self.fiberTB.text())
         except ValueError:
             print("Fiber is not flot")
+            msgBoxError.exec_()
             return
 
         try:
             FormClass.calories = float(self.caloriesTB.text())
         except ValueError:
             print("Calories is not flot")
+            msgBoxError.exec_()
             return
 
         FormClass.mealType = self.mealTypeTB.text()
@@ -221,6 +222,7 @@ class Window(QWidget):
 
         self.model["meal_type"].iloc[entryIndex] = self.modifyRecord.mealType
         self.model["meal_name"].iloc[entryIndex] = self.modifyRecord.mealName
+        print(self.model["meal_name"].iloc[entryIndex], self.model["meal_type"].iloc[entryIndex])
         self.tableWidgetRefresher()
 
     def modelInit(self):
@@ -532,10 +534,10 @@ class Window(QWidget):
         myFont.setPointSize(18)
 
         openButton = QPushButton("Open")
-        openButton.setFont(myFont)        
+        openButton.setFont(myFont)
 
         exportButton = QPushButton("Export")
-        exportButton.setFont(myFont)       
+        exportButton.setFont(myFont)
 
         openButton.setMaximumWidth(150)
         self.openExportButtonLayout.addWidget(openButton)
@@ -547,22 +549,22 @@ class Window(QWidget):
 
     # -------------------------Button actions
     def actionOpenButton(self):
-        self.modelFileDialog=QFileDialog()
+        self.modelFileDialog = QFileDialog()
         self.modelFileDialog.setFileMode(QFileDialog.AnyFile)
         self.modelFileDialog.setNameFilters(["Comma-separated value (*.csv)"])
 
         self.modelFileDialog.exec_()
-        self.mealCSVAdd=self.modelFileDialog.selectedFiles()
-        self.mealCSVAdd=self.mealCSVAdd[0]
-        if('.csv' not in self.mealCSVAdd):
+        self.mealCSVAdd = self.modelFileDialog.selectedFiles()
+        self.mealCSVAdd = self.mealCSVAdd[0]
+        if ".csv" not in self.mealCSVAdd:
             msgBox = QMessageBox()
             msgBox.setIcon(QMessageBox.Critical)
             msgBox.setText("The address file does not contain csv.")
             msgBox.setStandardButtons(QMessageBox.Ok)
             msgBox.exec_()
             return
-        self.baseAdd=os.path.dirname(self.mealCSVAdd)
-        self.participantAdd=os.path.dirname(self.baseAdd)
+        self.baseAdd = os.path.dirname(self.mealCSVAdd)
+        self.participantAdd = os.path.dirname(self.baseAdd)
 
         self.modelInit()
         self.modelChecker()
