@@ -59,6 +59,7 @@ class FormClass(QWidget):
     protein = 0
     carb = 0
     fiber = 0
+    suger = 0
     calories = 0
     mealType = " "
     mealName = " "
@@ -96,6 +97,9 @@ class FormClass(QWidget):
         newLabel = QLabel("Fiber:")
         self.verticalLayoutLabel.addWidget(newLabel)
 
+        newLabel = QLabel("Sugar:")
+        self.verticalLayoutLabel.addWidget(newLabel)
+
         newLabel = QLabel("Calories:")
         self.verticalLayoutLabel.addWidget(newLabel)
 
@@ -121,6 +125,10 @@ class FormClass(QWidget):
         self.fiberTB = QLineEdit(str(entryData["Fiber"]))
         self.verticalLayoutText.addWidget(self.fiberTB)
         FormClass.fiber = str(entryData["Fiber"])
+
+        self.sugarTB = QLineEdit(str(entryData["Sugar"]))
+        self.verticalLayoutText.addWidget(self.sugarTB)
+        FormClass.suger = str(entryData["Sugar"])
 
         self.caloriesTB = QLineEdit(str(entryData["Calories"]))
         self.verticalLayoutText.addWidget(self.caloriesTB)
@@ -172,6 +180,13 @@ class FormClass(QWidget):
             return
 
         try:
+            FormClass.suger = float(self.sugarTB.text())
+        except ValueError:
+            print("Sugar is not flot")
+            msgBoxError.exec_()
+            return
+
+        try:
             FormClass.calories = float(self.caloriesTB.text())
         except ValueError:
             print("Calories is not flot")
@@ -219,6 +234,7 @@ class Window(QWidget):
         self.model["Protein"].iloc[entryIndex] = self.modifyRecord.protein
         self.model["Fat"].iloc[entryIndex] = self.modifyRecord.fat
         self.model["Fiber"].iloc[entryIndex] = self.modifyRecord.fiber
+        self.model["Sugar"].iloc[entryIndex] = self.modifyRecord.suger
 
         self.model["meal_type"].iloc[entryIndex] = self.modifyRecord.mealType
         self.model["meal_name"].iloc[entryIndex] = self.modifyRecord.mealName
@@ -250,6 +266,7 @@ class Window(QWidget):
             "ratio",
             "notes",
         ]
+
         for element in checkLists:
             if not element in headers:
                 print("Error, please check your csv file because the headers is not right")
@@ -281,6 +298,10 @@ class Window(QWidget):
             if self.model["finish_photo_address"].iloc[counter] == " ":
                 self.model["end_time"].iloc[counter] = " "
                 self.model["finish_photo"].iloc[counter] = 0
+
+        if "Suger" not in headers:  # Adding the suger column if the model does not have it
+            sugerIndex = self.model.columns.get_loc("Fiber") + 1
+            self.model.insert(sugerIndex, "Sugar", 0)
 
     def todayReader(self, today):
         todayCSV = self.model
@@ -380,9 +401,7 @@ class Window(QWidget):
         self.tableWidget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.tableWidget.setShowGrid(True)
         self.tableWidget.setColumnCount(9)
-        self.tableWidget.setHorizontalHeaderLabels(
-            ["Index", "Meal", "Start Pic", "Start Time", "End Pic", "End Time", "Ratio (%)", "Note", "Modify"]
-        )
+        self.tableWidget.setHorizontalHeaderLabels(["Index", "Meal", "Start Pic", "Start Time", "End Pic", "End Time", "Ratio (%)", "Note", "Modify"])
         myFont = self.font()
         myFont.setPointSize(18)
         self.tableWidget.horizontalHeader().setFont(myFont)
@@ -602,6 +621,7 @@ class Window(QWidget):
         newRow.append(0)  # protein
         newRow.append(0)  # fat
         newRow.append(0)  # fiber
+        newRow.append(0)  # suger
         newRow.append(0)  # ratio
         newRow.append(" ")  # notes
         newRow.append(" ")  # start photo pic
