@@ -299,7 +299,7 @@ class Window(QWidget):
                 self.model["end_time"].iloc[counter] = " "
                 self.model["finish_photo"].iloc[counter] = 0
 
-        if "Suger" not in headers:  # Adding the suger column if the model does not have it
+        if "Sugar" not in headers:  # Adding the suger column if the model does not have it
             sugerIndex = self.model.columns.get_loc("Fiber") + 1
             self.model.insert(sugerIndex, "Sugar", 0)
 
